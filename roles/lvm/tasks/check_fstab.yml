@@ -4,6 +4,15 @@
   register: fstab_check
   changed_when: "'CHANGED' in fstab_check.stdout"
 
+- name: Ensure fstab backup exists
+  stat:
+    path: /root/fstab.backup
+  register: fstab_backup
+
+- name: Create fstab backup if missing
+  command: cp /etc/fstab /root/fstab.backup
+  when: not fstab_backup.stat.exists
+
 - name: Restore original fstab if modified
   copy:
     src: /root/fstab.backup
@@ -11,5 +20,6 @@
     owner: root
     group: root
     mode: '0644'
+    remote_src: yes
   when: "'CHANGED' in fstab_check.stdout"
   notify: Remount all filesystems
