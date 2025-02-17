@@ -32,5 +32,12 @@
   command: lvcreate -L 2G -n lv_var vg_var
   when: "'lv_var' not in lv_check.stdout"
 
+- name: Check if LV is mounted
+  command: mount | grep /dev/vg_var/lv_var
+  register: lv_mount_check
+  changed_when: false
+  failed_when: false
+
 - name: Format the LV as ext4
   command: mkfs.ext4 /dev/vg_var/lv_var
+  when: lv_mount_check.stdout == ''
