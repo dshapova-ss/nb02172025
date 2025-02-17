@@ -6,4 +6,4 @@
   include_tasks: setup_lvm.yml
 
 - name: Mount /var and update fstab
-  include_tasks: mount_var.ymls
+  include_tasks: mount_var.yml
