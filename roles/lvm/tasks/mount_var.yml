@@ -19,7 +19,7 @@
 
 - name: Create timestamped backup of /var
   command: rsync -avx /var/ /mnt/var-backup/{{ backup_timestamp.stdout }}/
-  
+
   #  -a (archive mode) → Preserves file permissions, symlinks, timestamps, etc.
   #  -v (verbose mode) → Shows detailed output during the copy process.
   #  -x (one-file system) → Prevents crossing filesystem boundaries (e.g., skipping mounted directories like /proc and /sys).
@@ -32,7 +32,7 @@
     opts: defaults
     state: mounted
 
-- name: Restore backup to new /var
+- name: Restore backup to new /var from /mnt/var-backup/{{ backup_timestamp.stdout }}
   command: rsync -av /mnt/var-backup/{{ backup_timestamp.stdout }}/ /var/
 
 - name: Update /etc/fstab
