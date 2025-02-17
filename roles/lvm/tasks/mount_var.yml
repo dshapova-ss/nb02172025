@@ -13,11 +13,13 @@
     group: root
     mode: '0755'
 
+- name: Generate timestamp
+  command: date +%Y-%m-%d_%H-%M-%S
+  register: backup_timestamp
+  changed_when: false
+
 - name: Create timestamped backup of /var
-  command: >
-    rsync -avx /var/ /mnt/var-backup/$(date +%Y-%m-%d_%H-%M-%S)/
-  args:
-    creates: "/mnt/var-backup/$(date +%Y-%m-%d_%H-%M-%S)/"
+  command: rsync -avx /var/ /mnt/var-backup/{{ backup_timestamp.stdout }}/
 
 - name: Mount new /var
   mount:
