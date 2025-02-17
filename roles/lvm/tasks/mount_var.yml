@@ -1,4 +1,10 @@
 ---
+- name: Ensure rsync is installed
+  apt:
+    name: rsync
+    state: present
+    update_cache: yes
+
 - name: Ensure backup directory exists
   file:
     path: /mnt/var-backup
