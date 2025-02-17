@@ -39,5 +39,5 @@
   failed_when: false
 
 - name: Format the LV as ext4
-  command: mkfs.ext4 /dev/vg_var/lv_var
+  command: mkfs.ext4 lv_var
   when: lv_mount_check.stdout == ''
