@@ -1,6 +1,17 @@
 ---
-- name: Backup existing /var
-  command: rsync -avx /var/ /mnt/var-backup/
+- name: Ensure backup directory exists
+  file:
+    path: /mnt/var-backup
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create timestamped backup of /var
+  command: >
+    rsync -avx /var/ /mnt/var-backup/$(date +%Y-%m-%d_%H-%M-%S)/
+  args:
+    creates: "/mnt/var-backup/$(date +%Y-%m-%d_%H-%M-%S)/"
 
 - name: Mount new /var
   mount:
