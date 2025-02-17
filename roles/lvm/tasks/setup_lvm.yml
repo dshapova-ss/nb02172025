@@ -1,4 +1,10 @@
 ---
+- name: Install LVM2 package
+  apt:
+    name: lvm2
+    state: present
+    update_cache: yes
+
 - name: Check if PV exists
   command: pvs --noheadings -o pv_name
   register: pv_check
