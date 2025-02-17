@@ -1,0 +1,4 @@
+webservers:
+  hosts:
+    lvm:
+      ansible_connection: local

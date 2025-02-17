@@ -1,0 +1,7 @@
+---
+- name: use all roles playbook
+  hosts: all
+  become: true
+
+  roles:
+    - role: lvm

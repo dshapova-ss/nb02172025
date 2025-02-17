@@ -1,0 +1,9 @@
+---
+- name: Check fstab for inconsistencies
+  include_tasks: check_fstab.yml
+
+- name: Configure LVM on the new disk
+  include_tasks: setup_lvm.yml
+
+- name: Mount /var and update fstab
+  include_tasks: mount_var.ymls

@@ -1,0 +1,30 @@
+---
+- name: Check if PV exists
+  command: pvs --noheadings -o pv_name
+  register: pv_check
+  changed_when: false
+
+- name: Create a new PV
+  command: pvcreate /dev/sdb
+  when: "'/dev/sdb' not in pv_check.stdout"
+
+- name: Check if VG exists
+  command: vgs --noheadings -o vg_name
+  register: vg_check
+  changed_when: false
+
+- name: Create VG if not exists
+  command: vgcreate vg_var /dev/sdb
+  when: "'vg_var' not in vg_check.stdout"
+
+- name: Check if LV exists
+  command: lvs --noheadings -o lv_name --select vg_name=vg_var
+  register: lv_check
+  changed_when: false
+
+- name: Create LV if not exists
+  command: lvcreate -L 2G -n lv_var vg_var
+  when: "'lv_var' not in lv_check.stdout"
+
+- name: Format the LV as ext4
+  command: mkfs.ext4 /dev/vg_var/lv_var

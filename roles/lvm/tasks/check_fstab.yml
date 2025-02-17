@@ -1,0 +1,15 @@
+---
+- name: Check fstab consistency
+  shell: diff /etc/fstab /root/fstab.backup || echo "CHANGED"
+  register: fstab_check
+  changed_when: "'CHANGED' in fstab_check.stdout"
+
+- name: Restore original fstab if modified
+  copy:
+    src: /root/fstab.backup
+    dest: /etc/fstab
+    owner: root
+    group: root
+    mode: '0644'
+  when: "'CHANGED' in fstab_check.stdout"
+  notify: Remount all filesystems
