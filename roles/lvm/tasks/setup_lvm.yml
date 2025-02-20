@@ -28,8 +28,13 @@
   register: lv_check
   changed_when: false
 
-- name: Create and format LV if not exists
-  command: |
-    lvcreate -L 2G -n lv_var vg_var
-    mkfs.ext4 /dev/vg_var/lv_var
-  when: "'lv_var' not in lv_check.stdout"
+- name: Create Logical Volume if not exists
+  command: lvcreate -L 2G -n lv_var vg_var
+  args:
+    creates: "/dev/vg_var/lv_var"
+
+- name: Format the Logical Volume as ext4 (if needed)
+  filesystem:
+    fstype: ext4
+    dev: "/dev/vg_var/lv_var"
+
