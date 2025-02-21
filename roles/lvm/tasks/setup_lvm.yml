@@ -1,56 +1,62 @@
-    - name: Install LVM2 package
-      apt:
-        name: lvm2
-        state: present
-        update_cache: yes
+---
+- name: Setup LVM on the first unpartitioned disk
+hosts: all
+become: yes
+tasks:
 
-    - name: Find unpartitioned block devices
-      command: lsblk -nd -o NAME,TYPE | awk '$2 == "disk" { print $1 }'
-      register: unpartitioned_disks
-      changed_when: false
+- name: Install LVM2 package
+  apt:
+    name: lvm2
+    state: present
+    update_cache: yes
 
-    - name: Select the first unpartitioned device
-      set_fact:
-        selected_disk: "/dev/{{ unpartitioned_disks.stdout_lines[0] }}"
-      when: unpartitioned_disks.stdout_lines | length > 0
+- name: Find unpartitioned block devices
+  command: lsblk -nd -o NAME,TYPE | awk '$2 == "disk" { print $1 }'
+  register: unpartitioned_disks
+  changed_when: false
 
-    - name: Check if the selected device is already a Physical Volume
-      command: pvs --noheadings -o pv_name
-      register: pv_check
-      changed_when: false
+- name: Select the first unpartitioned device
+  set_fact:
+    selected_disk: "/dev/{{ unpartitioned_disks.stdout_lines[0] }}"
+  when: unpartitioned_disks.stdout_lines | length > 0
 
-    - name: Create a new PV if not exists
-      command: pvcreate {{ selected_disk }}
-      when:
-        - selected_disk is defined
-        - selected_disk not in pv_check.stdout
+- name: Check if the selected device is already a Physical Volume
+  command: pvs --noheadings -o pv_name
+  register: pv_check
+  changed_when: false
 
-    - name: Check if Volume Group exists
-      command: vgs --noheadings -o vg_name
-      register: vg_check
-      changed_when: false
+- name: Create a new PV if not exists
+  command: pvcreate {{ selected_disk }}
+  when:
+    - selected_disk is defined
+    - selected_disk not in pv_check.stdout
 
-    - name: Create VG if not exists
-      command: vgcreate vg_var {{ selected_disk }}
-      when:
-        - selected_disk is defined
-        - 'vg_var' not in vg_check.stdout
+- name: Check if Volume Group exists
+  command: vgs --noheadings -o vg_name
+  register: vg_check
+  changed_when: false
 
-    - name: Check if Logical Volume exists
-      command: lvs --noheadings -o lv_name --select vg_name=vg_var
-      register: lv_check
-      changed_when: false
+- name: Create VG if not exists
+  command: vgcreate vg_var {{ selected_disk }}
+  when:
+    - selected_disk is defined
+    - "vg_var" not in vg_check.stdout
 
-    - name: Create Logical Volume if not exists
-      command: lvcreate -L 2G -n lv_var vg_var
-      args:
-        creates: "/dev/vg_var/lv_var"
-      when:
-        - selected_disk is defined
+- name: Check if Logical Volume exists
+  command: lvs --noheadings -o lv_name --select vg_name=vg_var
+  register: lv_check
+  changed_when: false
 
-    - name: Format the Logical Volume as ext4 (if needed)
-      filesystem:
-        fstype: ext4
-        dev: "/dev/vg_var/lv_var"
-      when:
-        - selected_disk is defined
+- name: Create Logical Volume if not exists
+  command: lvcreate -L 2G -n lv_var vg_var
+  args:
+    creates: "/dev/vg_var/lv_var"
+  when:
+    - selected_disk is defined
+
+- name: Format the Logical Volume as ext4 (if needed)
+  filesystem:
+    fstype: ext4
+    dev: "/dev/vg_var/lv_var"
+  when:
+    - selected_disk is defined
