@@ -1,9 +1,3 @@
----
-- name: Setup LVM on the first unpartitioned disk
-hosts: all
-become: yes
-tasks:
-
 - name: Install LVM2 package
   apt:
     name: lvm2
