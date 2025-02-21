@@ -34,7 +34,7 @@
   command: vgcreate vg_var {{ selected_disk }}
   when:
     - selected_disk is defined
-    - "vg_var" not in vg_check.stdout
+    - "'vg_var' not in vg_check.stdout"
 
 - name: Check if Logical Volume exists
   command: lvs --noheadings -o lv_name --select vg_name=vg_var
