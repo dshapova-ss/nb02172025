@@ -5,7 +5,7 @@
     update_cache: yes
 
 - name: Find unpartitioned block devices
-  command: lsblk -nd -o NAME,TYPE | awk '$2 == "disk" { print $1 }'
+  shell: lsblk -nd -o NAME,TYPE | awk '$2 == "disk" { print $1 }'
   register: unpartitioned_disks
   changed_when: false
 
